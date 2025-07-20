@@ -209,11 +209,81 @@ static void test_pendulum(void) {
     expect_close(Y[0]*Y[0] + Y[1]*Y[1], p.len*p.len);
 }
 
+// Two independent pendulums sharing the same gravity but with different rod
+// lengths.  Each pendulum uses its own Lagrange multiplier to enforce the
+// length constraint.
+struct pendulum_pair {
+    double len1,
+           len2,
+           g;
+};
+
+static void pendulum_pair_f(double *dYdt, double t, double const *Y,
+                            double const *Z, void *ctx) {
+    struct pendulum_pair const *p = ctx;
+    (void)t;
+    double const x1 = Y[0], y1 = Y[1], u1 = Y[2], v1 = Y[3];
+    double const x2 = Y[4], y2 = Y[5], u2 = Y[6], v2 = Y[7];
+    double const l1 = Z[0], l2 = Z[1];
+    dYdt[0] = u1;
+    dYdt[1] = v1;
+    dYdt[2] = l1 * x1;
+    dYdt[3] = l1 * y1 - p->g;
+    dYdt[4] = u2;
+    dYdt[5] = v2;
+    dYdt[6] = l2 * x2;
+    dYdt[7] = l2 * y2 - p->g;
+}
+
+static void pendulum_pair_g(double *G, double t, double const *Y, double const *Z,
+                            void *ctx) {
+    struct pendulum_pair const *p = ctx;
+    (void)t;
+    double const x1 = Y[0], y1 = Y[1], u1 = Y[2], v1 = Y[3], l1 = Z[0];
+    double const x2 = Y[4], y2 = Y[5], u2 = Y[6], v2 = Y[7], l2 = Z[1];
+    G[0] = l1 * (x1*x1 + y1*y1) - (y1 * p->g - u1*u1 - v1*v1);
+    G[1] = l2 * (x2*x2 + y2*y2) - (y2 * p->g - u2*u2 - v2*v2);
+}
+
+static void pendulum_pair_gz(double *dGdZ, double t, double const *Y,
+                             double const *Z, void *ctx) {
+    (void)t;
+    (void)Z;
+    (void)ctx;
+    double const x1 = Y[0], y1 = Y[1];
+    double const x2 = Y[4], y2 = Y[5];
+    dGdZ[0*2 + 0] = x1*x1 + y1*y1;
+    dGdZ[0*2 + 1] = 0.0;
+    dGdZ[1*2 + 0] = 0.0;
+    dGdZ[1*2 + 1] = x2*x2 + y2*y2;
+}
+
+static void test_pendulum_pair(void) {
+    struct pendulum_pair p = {1.0, 1.5, 1.0};
+    double Y[] = {
+        0.1, sqrt(p.len1*p.len1 - 0.1*0.1), 0.0, 0.0,
+        0.2, sqrt(p.len2*p.len2 - 0.2*0.2), 0.0, 0.0,
+    };
+    double Z[] = {0.0, 0.0};
+    double t   = 0.0;
+    struct dae_system sys = {len(Y), len(Z), pendulum_pair_f,
+                             pendulum_pair_g, pendulum_pair_gz, &p};
+
+    for (int i = 0; i < 4000; ++i) {
+        double const dt = 1.0/4000;
+        expect(dae_step_euler(&sys, t, dt, Y, Z));
+        t += dt;
+    }
+    expect_close(Y[0]*Y[0] + Y[1]*Y[1], p.len1*p.len1);
+    expect_close(Y[4]*Y[4] + Y[5]*Y[5], p.len2*p.len2);
+}
+
 int main(void) {
     test_lin_solve_2x2();
     test_lin_solve_pivot();
     test_reaction1();
     test_reaction2();
     test_pendulum();
+    test_pendulum_pair();
     return 0;
 }
