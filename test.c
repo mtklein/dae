@@ -16,6 +16,14 @@ static void expect_close(double x, double y) {
     expect(fabs(x - y) <= 1e-3);
 }
 
+static void plot(double t, double const Y[], int nY
+                         , double const Z[], int nZ) {
+    printf("%g", t);
+    for (int i = 0; i < nY; ++i) { printf(" %g", Y[i]); }
+    for (int i = 0; i < nZ; ++i) { printf(" %g", Z[i]); }
+    printf("\n");
+}
+
 static void test_lin_solve_2x2(void) {
     // Solve the row-major system
     //   2x + 3y = 5
@@ -83,10 +91,12 @@ static void test_reaction1(void) {
     double Z[] = {0.0};
     double t   = 0.0;
     struct dae_system sys = {len(Y), len(Z), reaction1_f, reaction1_g, reaction1_gz, &r};
-    for (int i = 0; i < 1000; ++i) {
-        double const dt = 1.0/1000;
+    printf("# reaction1\n");
+    for (int steps=1000, i = 0; i < steps; ++i) {
+        double const dt = 1.0/steps;
         expect(dae_step_euler(&sys, t, dt, Y, Z));
         t += dt;
+        plot(t, Y, len(Y), Z, len(Z));
     }
     expect_close(Y[0], exp(-1.0));
     expect_equiv(Z[0], 1.0 - Y[0]);
@@ -132,10 +142,13 @@ static void test_reaction2(void) {
     double t   = 0.0;
     struct dae_system sys = {len(Y), len(Z), reaction2_f, reaction2_g, reaction2_gz, &r};
 
-    for (int i = 0; i < 1000; ++i) {
-        double const dt = 1.0/1000;
+    printf("# reaction2\n");
+
+    for (int steps=1000, i = 0; i < steps; ++i) {
+        double const dt = 1.0/steps;
         expect(dae_step_euler(&sys, t, dt, Y, Z));
         t += dt;
+        plot(t, Y, len(Y), Z, len(Z));
     }
     double const expect_a = 1.0 / (1.0 + t);
     expect_equiv(Y[0], Y[1]);
@@ -201,10 +214,13 @@ static void test_pendulum(void) {
     double t   = 0.0;
     struct dae_system sys = {len(Y), len(Z), pendulum_f, pendulum_g, pendulum_gz, &p};
 
-    for (int i = 0; i < 2000; ++i) {
-        double const dt = 1.0/2000;
+    printf("# pendulum\n");
+
+    for (int steps = 2000, i = 0; i < steps; ++i) {
+        double const dt = 1.0/steps;
         expect(dae_step_euler(&sys, t, dt, Y, Z));
         t += dt;
+        plot(t, Y, len(Y), Z, len(Z));
     }
     expect_close(Y[0]*Y[0] + Y[1]*Y[1], p.len*p.len);
 }
@@ -263,10 +279,13 @@ static void test_pendulum_pair(void) {
     double t   = 0.0;
     struct dae_system sys = {len(Y),len(Z), pendulum_pair_f,pendulum_pair_g,pendulum_pair_gz, &p};
 
-    for (int i = 0; i < 4000; ++i) {
-        double const dt = 1.0/4000;
+    printf("# pendulum_pair\n");
+
+    for (int steps = 4000, i = 0; i < steps; ++i) {
+        double const dt = 1.0/steps;
         expect(dae_step_euler(&sys, t, dt, Y, Z));
         t += dt;
+        plot(t, Y, len(Y), Z, len(Z));
     }
     expect_close(Y[0]*Y[0] + Y[1]*Y[1], p.len1*p.len1);
     expect_close(Y[4]*Y[4] + Y[5]*Y[5], p.len2*p.len2);
