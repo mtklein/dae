@@ -213,13 +213,10 @@ static void test_pendulum(void) {
 // lengths.  Each pendulum uses its own Lagrange multiplier to enforce the
 // length constraint.
 struct pendulum_pair {
-    double len1,
-           len2,
-           g;
+    double len1,len2,g;
 };
 
-static void pendulum_pair_f(double *dYdt, double t, double const *Y,
-                            double const *Z, void *ctx) {
+static void pendulum_pair_f(double *dYdt, double t, double const *Y, double const *Z, void *ctx) {
     struct pendulum_pair const *p = ctx;
     (void)t;
     double const x1 = Y[0], y1 = Y[1], u1 = Y[2], v1 = Y[3];
@@ -235,8 +232,7 @@ static void pendulum_pair_f(double *dYdt, double t, double const *Y,
     dYdt[7] = l2 * y2 - p->g;
 }
 
-static void pendulum_pair_g(double *G, double t, double const *Y, double const *Z,
-                            void *ctx) {
+static void pendulum_pair_g(double *G, double t, double const *Y, double const *Z, void *ctx) {
     struct pendulum_pair const *p = ctx;
     (void)t;
     double const x1 = Y[0], y1 = Y[1], u1 = Y[2], v1 = Y[3], l1 = Z[0];
@@ -245,8 +241,7 @@ static void pendulum_pair_g(double *G, double t, double const *Y, double const *
     G[1] = l2 * (x2*x2 + y2*y2) - (y2 * p->g - u2*u2 - v2*v2);
 }
 
-static void pendulum_pair_gz(double *dGdZ, double t, double const *Y,
-                             double const *Z, void *ctx) {
+static void pendulum_pair_gz(double *dGdZ, double t, double const *Y, double const *Z, void *ctx) {
     (void)t;
     (void)Z;
     (void)ctx;
@@ -266,8 +261,7 @@ static void test_pendulum_pair(void) {
     };
     double Z[] = {0.0, 0.0};
     double t   = 0.0;
-    struct dae_system sys = {len(Y), len(Z), pendulum_pair_f,
-                             pendulum_pair_g, pendulum_pair_gz, &p};
+    struct dae_system sys = {len(Y),len(Z), pendulum_pair_f,pendulum_pair_g,pendulum_pair_gz, &p};
 
     for (int i = 0; i < 4000; ++i) {
         double const dt = 1.0/4000;
