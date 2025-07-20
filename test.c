@@ -1,4 +1,5 @@
 #include "dae.h"
+#include "lin.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -9,6 +10,30 @@
 
 static void expect_close(double got, double expect) {
     expect(fabs(got - expect) <= 1e-3);
+}
+
+static void test_lin_solve_2x2(void) {
+    double M[] = {
+        2.0, 1.0,
+        1.0, 2.0,
+    };
+    double V[] = {1.0, 3.0};
+    expect(lin_solve(M, V, len(V)));
+    expect_close(V[0], -1.0 / 3.0);
+    expect_close(V[1],  5.0 / 3.0);
+}
+
+static void test_lin_solve_pivot(void) {
+    double M[] = {
+        0.0, 2.0, 3.0,
+        1.0, 2.0, 3.0,
+        4.0, 5.0, 6.0,
+    };
+    double V[] = {1.0, 2.0, 3.0};
+    expect(lin_solve(M, V, len(V)));
+    expect_close(V[0], 1.0);
+    expect_close(V[1],-3.0);
+    expect_close(V[2], 7.0 / 3.0);
 }
 
 // First-order decay A -> B at rate k while the total amount A+B stays m.
@@ -170,6 +195,8 @@ static void test_pendulum(void) {
 }
 
 int main(void) {
+    test_lin_solve_2x2();
+    test_lin_solve_pivot();
     test_reaction1();
     test_reaction2();
     test_pendulum();
