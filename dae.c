@@ -7,25 +7,25 @@ _Bool dae_step_euler(struct dae_system const *sys, double step, double *Y, doubl
     int ny = sys->dim_y;
     int nz = sys->dim_z;
 
-    double *Dydt = malloc((size_t)ny * sizeof *Dydt);
-    if (!Dydt) {
+    double *dYdt = malloc((size_t)ny * sizeof *dYdt);
+    if (!dYdt) {
         return (_Bool)0;
     }
-    sys->f(Y, Z, t, Dydt, sys->ctx);
+    sys->f(Y, Z, t, dYdt, sys->ctx);
 
     double *Y_new = malloc((size_t)ny * sizeof *Y_new);
     if (!Y_new) {
-        free(Dydt);
+        free(dYdt);
         return (_Bool)0;
     }
     for (int i = 0; i < ny; ++i) {
-        Y_new[i] = Y[i] + step * Dydt[i];
+        Y_new[i] = Y[i] + step * dYdt[i];
     }
 
     double *Z_guess = malloc((size_t)nz * sizeof *Z_guess);
     if (!Z_guess) {
         free(Y_new);
-        free(Dydt);
+        free(dYdt);
         return (_Bool)0;
     }
     for (int i = 0; i < nz; ++i) {
@@ -52,7 +52,7 @@ _Bool dae_step_euler(struct dae_system const *sys, double step, double *Y, doubl
             }
             free(Z_guess);
             free(Y_new);
-            free(Dydt);
+            free(dYdt);
             return (_Bool)1;
         }
         size_t jm = (size_t)nz * (size_t)nz;
@@ -91,12 +91,12 @@ _Bool dae_step_euler(struct dae_system const *sys, double step, double *Y, doubl
             }
             free(Z_guess);
             free(Y_new);
-            free(Dydt);
+            free(dYdt);
             return (_Bool)1;
         }
     }
     free(Z_guess);
     free(Y_new);
-    free(Dydt);
+    free(dYdt);
     return (_Bool)0;
 }
