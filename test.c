@@ -53,7 +53,7 @@ struct reaction1 {
     double const k,m;
 };
 
-static void reaction1_f(double const *Y, double const *Z, double t, double *dYdt, void *ctx) {
+static void reaction1_f(double *dYdt, double t, double const *Y, double const *Z, void *ctx) {
     struct reaction1 const *r = ctx;
     (void)t;
     (void)Z;
@@ -61,7 +61,7 @@ static void reaction1_f(double const *Y, double const *Z, double t, double *dYdt
     dYdt[0] = -r->k * A;
 }
 
-static void reaction1_g(double const *Y, double const *Z, double t, double *G, void *ctx) {
+static void reaction1_g(double *G, double t, double const *Y, double const *Z, void *ctx) {
     struct reaction1 const *r = ctx;
     (void)t;
     double const A = Y[0],
@@ -69,7 +69,7 @@ static void reaction1_g(double const *Y, double const *Z, double t, double *G, v
     G[0] = A + B - r->m;
 }
 
-static void reaction1_gz(double const *Y, double const *Z, double t, double *dGdZ, void *ctx) {
+static void reaction1_gz(double *dGdZ, double t, double const *Y, double const *Z, void *ctx) {
     (void)Y;
     (void)Z;
     (void)t;
@@ -98,7 +98,7 @@ struct reaction2 {
     double const k;
 };
 
-static void reaction2_f(double const *Y, double const *Z, double t, double *dYdt, void *ctx) {
+static void reaction2_f(double *dYdt, double t, double const *Y, double const *Z, void *ctx) {
     struct reaction2 const *r = ctx;
     (void)t;
     (void)Z;
@@ -108,7 +108,7 @@ static void reaction2_f(double const *Y, double const *Z, double t, double *dYdt
     dYdt[1] = -r->k * A * B;
 }
 
-static void reaction2_g(double const *Y, double const *Z, double t, double *G, void *ctx) {
+static void reaction2_g(double *G, double t, double const *Y, double const *Z, void *ctx) {
     (void)t;
     (void)ctx;
     double const A = Y[0],
@@ -117,7 +117,7 @@ static void reaction2_g(double const *Y, double const *Z, double t, double *G, v
     G[0] = A + B + C - 2.0;
 }
 
-static void reaction2_gz(double const *Y, double const *Z, double t, double *dGdZ, void *ctx) {
+static void reaction2_gz(double *dGdZ, double t, double const *Y, double const *Z, void *ctx) {
     (void)Y;
     (void)Z;
     (void)t;
@@ -160,7 +160,7 @@ struct pendulum {
     double g;
 };
 
-static void pendulum_f(double const *Y, double const *Z, double t, double *dYdt, void *ctx) {
+static void pendulum_f(double *dYdt, double t, double const *Y, double const *Z, void *ctx) {
     struct pendulum const *p = ctx;
     (void)t;
     double const x = Y[0],
@@ -174,7 +174,7 @@ static void pendulum_f(double const *Y, double const *Z, double t, double *dYdt,
     dYdt[3] = l * y - p->g;
 }
 
-static void pendulum_g(double const *Y, double const *Z, double t, double *G, void *ctx) {
+static void pendulum_g(double *G, double t, double const *Y, double const *Z, void *ctx) {
     struct pendulum const *p = ctx;
     (void)t;
     double const x = Y[0],
@@ -185,7 +185,7 @@ static void pendulum_g(double const *Y, double const *Z, double t, double *G, vo
     G[0] = l * (x*x + y*y) - (y * p->g - u*u - v*v);
 }
 
-static void pendulum_gz(double const *Y, double const *Z, double t, double *dGdZ, void *ctx) {
+static void pendulum_gz(double *dGdZ, double t, double const *Y, double const *Z, void *ctx) {
     (void)Z;
     (void)t;
     (void)ctx;

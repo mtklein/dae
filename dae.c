@@ -16,12 +16,12 @@ static _Bool step_euler(struct dae_system const *sys, double t, double dt, doubl
     double *dYdt  = Y_scratch,
            *Y_new = Y_scratch;
 
-    sys->f(Y, Z, t, dYdt, sys->ctx);
+    sys->f(dYdt, t,Y,Z,sys->ctx);
     each(Y) { Y_new  [i] = Y[i] + dt*dYdt[i]; }
     each(Z) { Z_guess[i] = Z[i]; }
 
     for (int rounds = MAX_ROUNDS; rounds --> 0;) {
-        sys->g(Y_new, Z_guess, t+dt, G, sys->ctx);
+        sys->g(G, t+dt,Y_new,Z_guess,sys->ctx);
 
         {
             double norm = 0.0;
@@ -33,7 +33,7 @@ static _Bool step_euler(struct dae_system const *sys, double t, double dt, doubl
             }
         }
 
-        sys->gz(Y_new, Z_guess, t+dt, J, sys->ctx);
+        sys->gz(J, t+dt,Y_new,Z_guess,sys->ctx);
         each(Z) { G[i] = -G[i]; }
         if (!lin_solve(J, G, nZ)) {
             break;

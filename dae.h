@@ -1,8 +1,8 @@
 #pragma once
 
 // Represents a differential-algebraic system
-//     dY/dt = f(Y, Z, t)
-//         0 = g(Y, Z, t)
+//     dY/dt = f(t,Y,Z)
+//         0 = g(t,Y,Z)
 // dim_Y and dim_Z give the counts of Y and Z values.
 // f evaluates the differential equation, g the algebraic constraint,
 // and gz is the derivative of g with respect to Z.
@@ -10,9 +10,9 @@
 struct dae_system {
     int dim_y,
         dim_z;
-    void (*f )(double const *Y, double const *Z, double t, double *dYdt, void *ctx);
-    void (*g )(double const *Y, double const *Z, double t, double *G   , void *ctx);
-    void (*gz)(double const *Y, double const *Z, double t, double *dGdZ, void *ctx);
+    void (*f )(double *dYdt, double t, double const *Y, double const *Z, void *ctx);
+    void (*g )(double *G   , double t, double const *Y, double const *Z, void *ctx);
+    void (*gz)(double *dGdZ, double t, double const *Y, double const *Z, void *ctx);
     void *ctx;
 };
 
