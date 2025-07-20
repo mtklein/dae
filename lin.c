@@ -2,13 +2,13 @@
 #include <math.h>
 
 // Solve a linear system using Gauss-Jordan elimination with partial pivoting.
-_Bool lin_solve(double *m, double *v, int n) {
+_Bool lin_solve(double *M, double *V, int n) {
     for (int i = 0; i < n; i++) {
         // Locate the row with the largest coefficient for this column.
-        double max = fabs(m[i*n + i]);
+        double max = fabs(M[i*n + i]);
         int    piv = i;
         for (int r = i+1; r < n; r++) {
-            double const val = fabs(m[r*n + i]);
+            double const val = fabs(M[r*n + i]);
             if (max < val) {
                 max = val;
                 piv = r;
@@ -21,34 +21,34 @@ _Bool lin_solve(double *m, double *v, int n) {
         // Swap the current row with the pivot row in the matrix and vector.
         if (piv != i) {
             for (int c = i; c < n; c++) {
-                double const swap = m[  i*n + c];
-                m[  i*n + c]      = m[piv*n + c];
-                m[piv*n + c]      = swap;
+                double const swap = M[  i*n + c];
+                M[  i*n + c]      = M[piv*n + c];
+                M[piv*n + c]      = swap;
             }
             {
-                double const swap = v[  i];
-                v[  i]            = v[piv];
-                v[piv]            = swap;
+                double const swap = V[  i];
+                V[  i]            = V[piv];
+                V[piv]            = swap;
             }
         }
 
         // Scale the pivot row so the pivot column becomes 1.
-        double const diag = m[i*n + i];
+        double const diag = M[i*n + i];
         for (int c = i; c < n; c++) {
-            m[i*n + c] /= diag;
+            M[i*n + c] /= diag;
         }
         {
-            v[i] /= diag;
+            V[i] /= diag;
         }
 
         // Eliminate the pivot column from all other rows.
         for (int r = 0; r < n; r++) {
             if (r != i) {
-                double const factor = m[r*n + i];
+                double const factor = M[r*n + i];
                 for (int c = i; c < n; c++) {
-                    m[r*n + c] -= factor * m[i*n + c];
+                    M[r*n + c] -= factor * M[i*n + c];
                 }
-                v[r] -= factor * v[i];
+                V[r] -= factor * V[i];
             }
         }
     }

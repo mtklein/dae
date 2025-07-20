@@ -3,100 +3,100 @@
 #include <math.h>
 #include <stdlib.h>
 
-_Bool dae_step_euler(struct dae_system const *sys, double step, double *y, double *z, double t) {
+_Bool dae_step_euler(struct dae_system const *sys, double step, double *Y, double *Z, double t) {
     int ny = sys->dim_y;
     int nz = sys->dim_z;
 
-    double *dydt = malloc((size_t)ny * sizeof *dydt);
-    if (!dydt) {
+    double *Dydt = malloc((size_t)ny * sizeof *Dydt);
+    if (!Dydt) {
         return (_Bool)0;
     }
-    sys->f(y, z, t, dydt, sys->ctx);
+    sys->f(Y, Z, t, Dydt, sys->ctx);
 
-    double *y_new = malloc((size_t)ny * sizeof *y_new);
-    if (!y_new) {
-        free(dydt);
+    double *Y_new = malloc((size_t)ny * sizeof *Y_new);
+    if (!Y_new) {
+        free(Dydt);
         return (_Bool)0;
     }
     for (int i = 0; i < ny; ++i) {
-        y_new[i] = y[i] + step * dydt[i];
+        Y_new[i] = Y[i] + step * Dydt[i];
     }
 
-    double *z_guess = malloc((size_t)nz * sizeof *z_guess);
-    if (!z_guess) {
-        free(y_new);
-        free(dydt);
+    double *Z_guess = malloc((size_t)nz * sizeof *Z_guess);
+    if (!Z_guess) {
+        free(Y_new);
+        free(Dydt);
         return (_Bool)0;
     }
     for (int i = 0; i < nz; ++i) {
-        z_guess[i] = z[i];
+        Z_guess[i] = Z[i];
     }
 
     for (int iter = 0; iter < 10; ++iter) {
-        double *gvec = malloc((size_t)nz * sizeof *gvec);
-        if (!gvec) {
+        double *Gvec = malloc((size_t)nz * sizeof *Gvec);
+        if (!Gvec) {
             break;
         }
-        sys->g(y_new, z_guess, t + step, gvec, sys->ctx);
+        sys->g(Y_new, Z_guess, t + step, Gvec, sys->ctx);
         double norm = 0.0;
         for (int i = 0; i < nz; ++i) {
-            norm += gvec[i] * gvec[i];
+            norm += Gvec[i] * Gvec[i];
         }
         if (norm < 1e-16) {
-            free(gvec);
+            free(Gvec);
             for (int i = 0; i < ny; ++i) {
-                y[i] = y_new[i];
+                Y[i] = Y_new[i];
             }
             for (int i = 0; i < nz; ++i) {
-                z[i] = z_guess[i];
+                Z[i] = Z_guess[i];
             }
-            free(z_guess);
-            free(y_new);
-            free(dydt);
+            free(Z_guess);
+            free(Y_new);
+            free(Dydt);
             return (_Bool)1;
         }
         size_t jm = (size_t)nz * (size_t)nz;
         double *J = malloc(jm * sizeof *J);
-        double *delta = malloc((size_t)nz * sizeof *delta);
-        if (!J || !delta) {
-            free(delta);
+        double *Delta = malloc((size_t)nz * sizeof *Delta);
+        if (!J || !Delta) {
+            free(Delta);
             free(J);
-            free(gvec);
+            free(Gvec);
             break;
         }
-        sys->gz(y_new, z_guess, t + step, J, sys->ctx);
+        sys->gz(Y_new, Z_guess, t + step, J, sys->ctx);
         for (int i = 0; i < nz; ++i) {
-            delta[i] = -gvec[i];
+            Delta[i] = -Gvec[i];
         }
-        if (!lin_solve(J, delta, nz)) {
-            free(delta);
+        if (!lin_solve(J, Delta, nz)) {
+            free(Delta);
             free(J);
-            free(gvec);
+            free(Gvec);
             break;
         }
         double delta_norm = 0.0;
         for (int i = 0; i < nz; ++i) {
-            z_guess[i] += delta[i];
-            delta_norm += delta[i] * delta[i];
+            Z_guess[i] += Delta[i];
+            delta_norm += Delta[i] * Delta[i];
         }
-        free(delta);
+        free(Delta);
         free(J);
-        free(gvec);
+        free(Gvec);
         if (delta_norm < 1e-16) {
             for (int i = 0; i < ny; ++i) {
-                y[i] = y_new[i];
+                Y[i] = Y_new[i];
             }
             for (int i = 0; i < nz; ++i) {
-                z[i] = z_guess[i];
+                Z[i] = Z_guess[i];
             }
-            free(z_guess);
-            free(y_new);
-            free(dydt);
+            free(Z_guess);
+            free(Y_new);
+            free(Dydt);
             return (_Bool)1;
         }
     }
-    free(z_guess);
-    free(y_new);
-    free(dydt);
+    free(Z_guess);
+    free(Y_new);
+    free(Dydt);
     return (_Bool)0;
 }

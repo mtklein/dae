@@ -10,11 +10,11 @@
 struct dae_system {
     int dim_y,
         dim_z;
-    void (*f )(double const *y, double const *z, double t, double *dydt, void *ctx);
-    void (*g )(double const *y, double const *z, double t, double  *out, void *ctx);
-    void (*gz)(double const *y, double const *z, double t, double  *out, void *ctx);
+    void (*f )(double const *Y, double const *Z, double t, double *Dydt, void *ctx);
+    void (*g )(double const *Y, double const *Z, double t, double *Out, void *ctx);
+    void (*gz)(double const *Y, double const *Z, double t, double *Out, void *ctx);
     void *ctx;
 };
 
 // Advance the system by one Euler step and update z using Newton iteration.
-_Bool dae_step_euler(struct dae_system const *sys, double step, double *y, double *z, double t);
+_Bool dae_step_euler(struct dae_system const *sys, double step, double *Y, double *Z, double t);
