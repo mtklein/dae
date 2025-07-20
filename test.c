@@ -19,8 +19,8 @@ static void expect_close(double x, double y) {
 static void plot(double t, double const Y[], int nY
                          , double const Z[], int nZ) {
     printf("%g", t);
-    for (int i = 0; i < nY; ++i) { printf(" %g", Y[i]); }
-    for (int i = 0; i < nZ; ++i) { printf(" %g", Z[i]); }
+    for (int i = 0; i < nY; ++i) { printf(",%g", Y[i]); }
+    for (int i = 0; i < nZ; ++i) { printf(",%g", Z[i]); }
     printf("\n");
 }
 
@@ -92,6 +92,7 @@ static void test_reaction1(void) {
     double t   = 0.0;
     struct dae_system sys = {len(Y), len(Z), reaction1_f, reaction1_g, reaction1_gz, &r};
     printf("# reaction1\n");
+    printf("t,A,B\n");
     for (int steps=1000, i = 0; i < steps; ++i) {
         double const dt = 1.0/steps;
         expect(dae_step_euler(&sys, t, dt, Y, Z));
@@ -143,7 +144,7 @@ static void test_reaction2(void) {
     struct dae_system sys = {len(Y), len(Z), reaction2_f, reaction2_g, reaction2_gz, &r};
 
     printf("# reaction2\n");
-
+    printf("t,A,B,C\n");
     for (int steps=1000, i = 0; i < steps; ++i) {
         double const dt = 1.0/steps;
         expect(dae_step_euler(&sys, t, dt, Y, Z));
@@ -215,7 +216,7 @@ static void test_pendulum(void) {
     struct dae_system sys = {len(Y), len(Z), pendulum_f, pendulum_g, pendulum_gz, &p};
 
     printf("# pendulum\n");
-
+    printf("t,x,y,u,v,l\n");
     for (int steps = 2000, i = 0; i < steps; ++i) {
         double const dt = 1.0/steps;
         expect(dae_step_euler(&sys, t, dt, Y, Z));
@@ -280,7 +281,7 @@ static void test_pendulum_pair(void) {
     struct dae_system sys = {len(Y),len(Z), pendulum_pair_f,pendulum_pair_g,pendulum_pair_gz, &p};
 
     printf("# pendulum_pair\n");
-
+    printf("t,x1,y1,u1,v1,x2,y2,u2,v2,l1,l2\n");
     for (int steps = 4000, i = 0; i < steps; ++i) {
         double const dt = 1.0/steps;
         expect(dae_step_euler(&sys, t, dt, Y, Z));

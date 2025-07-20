@@ -20,8 +20,8 @@ rule link
 rule run
     command = ./$in > $out
 
-build out/lin.o:   compile lin.c
-build out/dae.o:   compile dae.c
-build out/test.o:  compile test.c
-build out/test:    link out/lin.o out/dae.o out/test.o
-build out/test.ok: run out/test
+build out/lin.o:    compile lin.c
+build out/dae.o:    compile dae.c
+build out/test.o:   compile test.c
+build out/test:     link out/lin.o out/dae.o out/test.o
+build out/test.csv: run out/test
