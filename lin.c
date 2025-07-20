@@ -1,45 +1,56 @@
 #include "lin.h"
 #include <math.h>
 
-int lin_solve(double *matrix, double *vec, int n) {
-    for (int i = 0; i < n; ++i) {
-        int pivot = i;
-        double max = fabs(matrix[i * n + i]);
-        for (int r = i + 1; r < n; ++r) {
-            double v = fabs(matrix[r * n + i]);
-            if (v > max) {
-                max = v;
-                pivot = r;
+// TODO: replace this comment with a short explanation of this algorithm
+_Bool lin_solve(double *m, double *v, int n) {
+    for (int i = 0; i < n; i++) {
+        // TODO: replace this comment with a one-line explanation of this step
+        double max = fabs(m[i*n + i]);
+        int    piv = i;
+        for (int r = i+1; r < n; r++) {
+            double const val = fabs(m[r*n + i]);
+            if (max < val) {
+                max = val;
+                piv = r;
             }
         }
         if (max == 0.0) {
-            return -1;
+            return (_Bool)0;
         }
-        if (pivot != i) {
-            for (int c = i; c < n; ++c) {
-                double tmp = matrix[i * n + c];
-                matrix[i * n + c] = matrix[pivot * n + c];
-                matrix[pivot * n + c] = tmp;
+
+        // TODO: replace this comment with a one-line explanation of this step
+        if (piv != i) {
+            for (int c = i; c < n; c++) {
+                double const swap = m[  i*n + c];
+                m[  i*n + c]      = m[piv*n + c];
+                m[piv*n + c]      = swap;
             }
-            double tmp = vec[i];
-            vec[i] = vec[pivot];
-            vec[pivot] = tmp;
+            {
+                double const swap = v[  i];
+                v[  i]            = v[piv];
+                v[piv]            = swap;
+            }
         }
-        double diag = matrix[i * n + i];
-        for (int c = i; c < n; ++c) {
-            matrix[i * n + c] /= diag;
+
+        // TODO: replace this comment with a one-line explanation of this step
+        double const diag = m[i*n + i];
+        for (int c = i; c < n; c++) {
+            m[i*n + c] /= diag;
         }
-        vec[i] /= diag;
-        for (int r = 0; r < n; ++r) {
-            if (r == i) {
-                continue;
+        {
+            v[i] /= diag;
+        }
+
+        // TODO: replace this comment with a one-line explanation of this step
+        for (int r = 0; r < n; r++) {
+            if (r != i) {
+                double const factor = m[r*n + i];
+                for (int c = i; c < n; c++) {
+                    m[r*n + c] -= factor * m[i*n + c];
+                }
+                v[r] -= factor * v[i];
             }
-            double factor = matrix[r * n + i];
-            for (int c = i; c < n; ++c) {
-                matrix[r * n + c] -= factor * matrix[i * n + c];
-            }
-            vec[r] -= factor * vec[i];
         }
     }
-    return 0;
+    return (_Bool)1;
 }

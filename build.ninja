@@ -2,7 +2,7 @@ builddir = out
 
 path = env PATH=/opt/homebrew/opt/llvm/bin:$$PATH
 san  = address,integer,undefined
-cc   = clang -fsanitize=$san -fno-sanitize-recover=$san -fprofile-instr-generate -fcoverage-mapping
+cc   = clang -fsanitize=$san -fno-sanitize-recover=$san
 warn = -Weverything $
        -Wno-declaration-after-statement $
        -Wno-poison-system-directories $
@@ -10,7 +10,7 @@ warn = -Weverything $
        -Wno-unsafe-buffer-usage $
 
 rule compile
-    command = $path $cc -g -Og -Werror $warn -fcolor-diagnostics -I. -MD -MF $out.d -c $in -o $out
+    command = $path $cc -g -Og -Werror $warn -fcolor-diagnostics -MD -MF $out.d -c $in -o $out
     depfile = $out.d
     deps    = gcc
 
@@ -18,27 +18,10 @@ rule link
     command = $path $cc -lm $in -o $out
 
 rule run
-    command = env LLVM_PROFILE_FILE=$in.profraw ./$in > $out
+    command = ./$in > $out
 
-rule mergecov
-    command = $path llvm-profdata merge -sparse $in -o $out
-
-rule reportcov
-    command = $path llvm-cov report -ignore-filename-regex=test -use-color -instr-profile=$in > $out
-
-rule showcov
-    command = $path llvm-cov show -ignore-filename-regex=test -format html -instr-profile=$in > $out
-
-build $builddir/lin.o: compile lin.c
-build $builddir/dae.o: compile dae.c
-build $builddir/test_dae.o: compile test/test_dae.c
-
-build $builddir/test_dae: link $builddir/lin.o $builddir/dae.o $builddir/test_dae.o
-
-build $builddir/test.log: run $builddir/test_dae
-
-build cov.profdata: mergecov $builddir/test_dae.profraw
-build cov.txt: reportcov cov.profdata
-build cov/: showcov cov.profdata
-
-default $builddir/test.log
+build out/lin.o:   compile lin.c
+build out/dae.o:   compile dae.c
+build out/test.o:  compile test.c
+build out/test:    link out/lin.o out/dae.o out/test.o
+build out/test.ok: run out/test

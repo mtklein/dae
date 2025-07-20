@@ -3,21 +3,20 @@
 #include <math.h>
 #include <stdlib.h>
 
-int dae_step_euler(struct dae_system const *sys, double step,
-                   double *y, double *z, double t) {
+_Bool dae_step_euler(struct dae_system const *sys, double step, double *y, double *z, double t) {
     int ny = sys->dim_y;
     int nz = sys->dim_z;
 
     double *dydt = malloc((size_t)ny * sizeof *dydt);
     if (!dydt) {
-        return -1;
+        return (_Bool)0;
     }
     sys->f(y, z, t, dydt, sys->ctx);
 
     double *y_new = malloc((size_t)ny * sizeof *y_new);
     if (!y_new) {
         free(dydt);
-        return -1;
+        return (_Bool)0;
     }
     for (int i = 0; i < ny; ++i) {
         y_new[i] = y[i] + step * dydt[i];
@@ -27,7 +26,7 @@ int dae_step_euler(struct dae_system const *sys, double step,
     if (!z_guess) {
         free(y_new);
         free(dydt);
-        return -1;
+        return (_Bool)0;
     }
     for (int i = 0; i < nz; ++i) {
         z_guess[i] = z[i];
@@ -54,7 +53,7 @@ int dae_step_euler(struct dae_system const *sys, double step,
             free(z_guess);
             free(y_new);
             free(dydt);
-            return 0;
+            return (_Bool)1;
         }
         size_t jm = (size_t)nz * (size_t)nz;
         double *J = malloc(jm * sizeof *J);
@@ -69,7 +68,7 @@ int dae_step_euler(struct dae_system const *sys, double step,
         for (int i = 0; i < nz; ++i) {
             delta[i] = -gvec[i];
         }
-        if (lin_solve(J, delta, nz)) {
+        if (!lin_solve(J, delta, nz)) {
             free(delta);
             free(J);
             free(gvec);
@@ -93,11 +92,11 @@ int dae_step_euler(struct dae_system const *sys, double step,
             free(z_guess);
             free(y_new);
             free(dydt);
-            return 0;
+            return (_Bool)1;
         }
     }
     free(z_guess);
     free(y_new);
     free(dydt);
-    return -1;
+    return (_Bool)0;
 }

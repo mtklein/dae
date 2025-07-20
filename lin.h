@@ -1,6 +1,4 @@
-#ifndef LIN_H
-#define LIN_H
+#pragma once
 
-int lin_solve(double *matrix, double *vec, int n);
-
-#endif
+// TODO: replace this comment with a one-line description of what this function does.
+_Bool lin_solve(double *matrix, double *vec, int n);
