@@ -25,20 +25,20 @@ static void reaction1_f(double const *Y, double const *Z, double t, double *dYdt
     dYdt[0] = -r->k * A;
 }
 
-static void reaction1_g(double const *Y, double const *Z, double t, double *Out, void *ctx) {
+static void reaction1_g(double const *Y, double const *Z, double t, double *G, void *ctx) {
     struct reaction1 const *r = ctx;
     (void)t;
     double const A = Y[0],
                  B = Z[0];
-    Out[0] = A + B - r->m;
+    G[0] = A + B - r->m;
 }
 
-static void reaction1_gz(double const *Y, double const *Z, double t, double *Out, void *ctx) {
+static void reaction1_gz(double const *Y, double const *Z, double t, double *dGdZ, void *ctx) {
     (void)Y;
     (void)Z;
     (void)t;
     (void)ctx;
-    Out[0] = 1.0;
+    dGdZ[0] = 1.0;
 }
 
 static void test_reaction1(void) {
@@ -71,21 +71,21 @@ static void reaction2_f(double const *Y, double const *Z, double t, double *dYdt
     dYdt[1] = -r->k * A * B;
 }
 
-static void reaction2_g(double const *Y, double const *Z, double t, double *Out, void *ctx) {
+static void reaction2_g(double const *Y, double const *Z, double t, double *G, void *ctx) {
     (void)t;
     (void)ctx;
     double const A = Y[0],
                  B = Y[1],
                  C = Z[0];
-    Out[0] = A + B + C - 2.0;
+    G[0] = A + B + C - 2.0;
 }
 
-static void reaction2_gz(double const *Y, double const *Z, double t, double *Out, void *ctx) {
+static void reaction2_gz(double const *Y, double const *Z, double t, double *dGdZ, void *ctx) {
     (void)Y;
     (void)Z;
     (void)t;
     (void)ctx;
-    Out[0] = 1.0;
+    dGdZ[0] = 1.0;
 }
 
 static void test_reaction2(void) {
@@ -135,7 +135,7 @@ static void pendulum_f(double const *Y, double const *Z, double t, double *dYdt,
     dYdt[3] = l * y - p->g;
 }
 
-static void pendulum_g(double const *Y, double const *Z, double t, double *Out, void *ctx) {
+static void pendulum_g(double const *Y, double const *Z, double t, double *G, void *ctx) {
     struct pendulum const *p = ctx;
     (void)t;
     double const x = Y[0],
@@ -143,16 +143,16 @@ static void pendulum_g(double const *Y, double const *Z, double t, double *Out, 
                  u = Y[2],
                  v = Y[3],
                  l = Z[0];
-    Out[0] = l * (x*x + y*y) - (y * p->g - u*u - v*v);
+    G[0] = l * (x*x + y*y) - (y * p->g - u*u - v*v);
 }
 
-static void pendulum_gz(double const *Y, double const *Z, double t, double *Out, void *ctx) {
+static void pendulum_gz(double const *Y, double const *Z, double t, double *dGdZ, void *ctx) {
     (void)Z;
     (void)t;
     (void)ctx;
     double const x = Y[0],
                  y = Y[1];
-    Out[0] = x*x + y*y;
+    dGdZ[0] = x*x + y*y;
 }
 
 static void test_pendulum(void) {

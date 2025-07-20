@@ -11,8 +11,8 @@ struct dae_system {
     int dim_y,
         dim_z;
     void (*f )(double const *Y, double const *Z, double t, double *dYdt, void *ctx);
-    void (*g )(double const *Y, double const *Z, double t, double *Out, void *ctx);
-    void (*gz)(double const *Y, double const *Z, double t, double *Out, void *ctx);
+    void (*g )(double const *Y, double const *Z, double t, double *G   , void *ctx);
+    void (*gz)(double const *Y, double const *Z, double t, double *dGdZ, void *ctx);
     void *ctx;
 };
 
