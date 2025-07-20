@@ -13,17 +13,24 @@ static void expect_close(double got, double expect) {
 }
 
 static void test_lin_solve_2x2(void) {
+    // Solve the row-major system
+    //   2*x + 3*y = 5
+    //   1*x + 1*y = 2
     double M[] = {
-        2.0, 1.0,
-        1.0, 2.0,
+        2.0, 3.0,
+        1.0, 1.0,
     };
-    double V[] = {1.0, 3.0};
+    double V[] = {5.0, 2.0};
     expect(lin_solve(M, V, len(V)));
-    expect_close(V[0], -1.0 / 3.0);
-    expect_close(V[1],  5.0 / 3.0);
+    expect_close(V[0], 1.0);
+    expect_close(V[1], 1.0);
 }
 
 static void test_lin_solve_pivot(void) {
+    // Solve the row-major system requiring a pivot swap
+    //   0*x + 2*y + 3*z = 1
+    //   1*x + 2*y + 3*z = 2
+    //   4*x + 5*y + 6*z = 3
     double M[] = {
         0.0, 2.0, 3.0,
         1.0, 2.0, 3.0,
