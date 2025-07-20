@@ -9,8 +9,8 @@ static void expect_close(double got, double expect) {
     expect(fabs(got - expect) <= 1e-3);
 }
 
-// TODO: replace this comment with a description of this reaction
-//       and how we know what baseline truth to test against.
+// First-order decay A -> B at rate k while the total amount A+B stays m.
+// The analytic solution A(t)=exp(-k t) lets us check B(t)=m-A(t) after one unit.
 struct reaction1 {
     double k;
     double m;
@@ -53,8 +53,8 @@ static void test_reaction1(void) {
     expect_close(z[0], 1.0 - exp(-1.0));
 }
 
-// TODO: replace this comment with a description of this reaction
-//       and how we know what baseline truth to test against.
+// Second-order reaction A + B -> C with rate k and equal initial A and B.
+// With A=B the solution is A(t)=B(t)=1/(1+k t), giving C(t)=2-2*A(t) for comparison.
 struct reaction2 {
     double k;
 };

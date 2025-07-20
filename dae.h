@@ -1,7 +1,12 @@
 #pragma once
 
-// TODO: replace this comment with a short paragraph describing what dae_system represents,
-//       and a brief description of each of its parts if not obvious from that description.
+// Represents a differential-algebraic system
+//     dy/dt = f(y, z, t)
+//         0 = g(y, z, t)
+// dim_y and dim_z give the counts of y and z values.
+// f evaluates the differential equation, g the algebraic constraint,
+// and gz is the derivative of g with respect to z.
+// ctx is user data forwarded to the callbacks.
 struct dae_system {
     int dim_y,
         dim_z;
@@ -11,5 +16,5 @@ struct dae_system {
     void *ctx;
 };
 
-// TODO: replace this comment with a one-line description of what this function does.
+// Advance the system by one Euler step and update z using Newton iteration.
 _Bool dae_step_euler(struct dae_system const *sys, double step, double *y, double *z, double t);
