@@ -1,4 +1,5 @@
 #include "dae.h"
+#include "lin.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -7,8 +8,43 @@
 #define expect(x) \
     if (!(x)) fprintf(stderr, "%s:%d expect(%s)\n", __FILE__,__LINE__,#x), __builtin_debugtrap()
 
-static void expect_close(double got, double expect) {
-    expect(fabs(got - expect) <= 1e-3);
+static void expect_equiv(double x, double y) {
+    expect((x <= y && y <= x) ||
+           (x != x && y != y));
+}
+static void expect_close(double x, double y) {
+    expect(fabs(x - y) <= 1e-3);
+}
+
+static void test_lin_solve_2x2(void) {
+    // Solve the row-major system
+    //   2x + 3y = 5
+    //    x +  y = 2
+    double M[] = {
+        2.0, 3.0,
+        1.0, 1.0,
+    };
+    double V[] = {5.0, 2.0};
+    expect(lin_solve(M, V, len(V)));
+    expect_equiv(V[0], 1.0);
+    expect_equiv(V[1], 1.0);
+}
+
+static void test_lin_solve_pivot(void) {
+    // Solve the row-major system requiring a pivot swap
+    //        2y + 3z = 1
+    //    x + 2y + 3z = 2
+    //   4x + 5y + 6z = 3
+    double M[] = {
+        0.0, 2.0, 3.0,
+        1.0, 2.0, 3.0,
+        4.0, 5.0, 6.0,
+    };
+    double V[] = {1.0, 2.0, 3.0};
+    expect(lin_solve(M, V, len(V)));
+    expect_equiv(V[0],    1.0);
+    expect_equiv(V[1],   -3.0);
+    expect_equiv(V[2],  7/3.0);
 }
 
 // First-order decay A -> B at rate k while the total amount A+B stays m.
@@ -51,8 +87,8 @@ static void test_reaction1(void) {
         expect(dae_step_euler(&sys, 0.001, Y, Z, t));
         t += 0.001;
     }
-    expect_close(Y[0],       exp(-1.0));
-    expect_close(Z[0], 1.0 - exp(-1.0));
+    expect_close(Y[0], exp(-1.0));
+    expect_equiv(Z[0], 1.0 - Y[0]);
 }
 
 // Second-order reaction A + B -> C with rate k and equal initial A and B.
@@ -100,6 +136,7 @@ static void test_reaction2(void) {
         t += 0.001;
     }
     double const expect_a = 1.0 / (1.0 + t);
+    expect_equiv(Y[0], Y[1]);
     expect_close(Y[0], expect_a);
     expect_close(Y[1], expect_a);
     expect_close(Z[0], 2.0 - 2.0 * expect_a);
@@ -170,6 +207,8 @@ static void test_pendulum(void) {
 }
 
 int main(void) {
+    test_lin_solve_2x2();
+    test_lin_solve_pivot();
     test_reaction1();
     test_reaction2();
     test_pendulum();
