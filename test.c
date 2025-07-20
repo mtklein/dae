@@ -84,8 +84,9 @@ static void test_reaction1(void) {
     double t   = 0.0;
     struct dae_system sys = {len(Y), len(Z), reaction1_f, reaction1_g, reaction1_gz, &r};
     for (int i = 0; i < 1000; ++i) {
-        expect(dae_step_euler(&sys, 0.001, Y, Z, t));
-        t += 0.001;
+        double const dt = 1.0/1000;
+        expect(dae_step_euler(&sys, t, dt, Y, Z));
+        t += dt;
     }
     expect_close(Y[0], exp(-1.0));
     expect_equiv(Z[0], 1.0 - Y[0]);
@@ -132,8 +133,9 @@ static void test_reaction2(void) {
     struct dae_system sys = {len(Y), len(Z), reaction2_f, reaction2_g, reaction2_gz, &r};
 
     for (int i = 0; i < 1000; ++i) {
-        expect(dae_step_euler(&sys, 0.001, Y, Z, t));
-        t += 0.001;
+        double const dt = 1.0/1000;
+        expect(dae_step_euler(&sys, t, dt, Y, Z));
+        t += dt;
     }
     double const expect_a = 1.0 / (1.0 + t);
     expect_equiv(Y[0], Y[1]);
@@ -200,8 +202,9 @@ static void test_pendulum(void) {
     struct dae_system sys = {len(Y), len(Z), pendulum_f, pendulum_g, pendulum_gz, &p};
 
     for (int i = 0; i < 2000; ++i) {
-        expect(dae_step_euler(&sys, 0.0005, Y, Z, t));
-        t += 0.0005;
+        double const dt = 1.0/2000;
+        expect(dae_step_euler(&sys, t, dt, Y, Z));
+        t += dt;
     }
     expect_close(Y[0]*Y[0] + Y[1]*Y[1], p.len*p.len);
 }

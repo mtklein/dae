@@ -17,4 +17,4 @@ struct dae_system {
 };
 
 // Advance the system by one Euler step and update z using Newton iteration.
-_Bool dae_step_euler(struct dae_system const *sys, double step, double *Y, double *Z, double t);
+_Bool dae_step_euler(struct dae_system const *sys, double t, double dt, double *Y, double *Z);
