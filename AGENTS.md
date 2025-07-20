@@ -2,8 +2,8 @@ General guidelines:
 1) Preserve existing style; avoid purely stylistic changes like whitespace tweaks.
 2) Mimic existing style and established conventions for new code.
 3) Don't proactively defend against bugs; trust the sanitizers will do their job.
-4) Write comments only as a last resort for clarity, preferring to refactor and
-   refine identifiers to make the code itself clear and comments unnecessary.
+4) Write comments only when requested or as a last resort for clarity, preferring
+   to refactor and refine identifiers to make the code clear and comments unnecessary.
 5) Keep headers focused, exposing only what will be directly used by callers.
 6) If you would use an external dependency instead recreate the functionality
    you'd need from that dependency from scratch in a new build target.
