@@ -1,0 +1,30 @@
+builddir = out
+
+path = env PATH=/opt/homebrew/opt/llvm/bin:$$PATH
+san  = address,integer,undefined
+cc   = clang -fsanitize=$san -fno-sanitize-recover=$san -fprofile-instr-generate -fcoverage-mapping
+warn = -Weverything $
+       -Wno-declaration-after-statement $
+       -Wno-poison-system-directories $
+       -Wno-switch-default $
+       -Wno-unsafe-buffer-usage $
+
+rule compile
+    command = $path $cc -g -Og -Werror $warn -fcolor-diagnostics -MD -MF $out.d -c $in -o $out
+    depfile = $out.d
+    deps    = gcc
+
+rule link
+    command = $path $cc -lm $in -o $out
+
+rule run
+    command = env LLVM_PROFILE_FILE=$in.profraw ./$in > $out
+
+rule mergecov
+    command = $path llvm-profdata merge -sparse $in -o $out
+
+rule reportcov
+    command = $path llvm-cov report -ignore-filename-regex=test -use-color -instr-profile=$in > $out
+
+rule showcov
+    command = $path llvm-cov show -ignore-filename-regex=test -format html -instr-profile=$in > $out
